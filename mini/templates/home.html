@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeSync - Home</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}"> <!-- Link to external CSS file -->
+<link rel="icon" type="image/jpg" href="{{ url_for('static', filename='icon.jpg') }}">
+</head>
+<body>
+    <div class="top-left-navigator" id="fileList">
+        <!-- Navigator for file show-->
+        <h2>  <img src="{{ url_for('static', filename='icon.jpg') }}" alt="icon" class="icon-img"> Code hub <button id='hub'>show</button></h2>
+        <ul>
+          <!-- List of files will be populated here -->
+        </ul>
+    </div>
+    <div class="top-right-buttons">
+        <!-- Buttons with curved edges -->
+        <button id="add">Add</button>
+        <button id="push">Push</button>
+        <button id="pull">Pull</button>
+        <p id="status"></p>
+    </div>
+    <div class="vs-coder">
+        <!-- Embedded code editor -->
+        <iframe src="{{ url_for('static', filename='vscoder.html') }}" width="100%" height="600px" frameborder="0" style="overflow-y: hidden;"></iframe>
+
+    </div>
+    <script src="{{ url_for('static', filename='home.js') }}"></script> <!-- Link to external JavaScript file -->
+    <script>
+        var flag = false ;
+        // Function to fetch and display files
+        async function displayFiles() {
+            try {
+                // Fetch list of files from server
+                const response = await fetch('/get_files');
+                const files = await response.json();
+                
+                // Get the file list element
+                const fileList = document.getElementById('fileList').querySelector('ul');
+                
+                // Clear existing list items
+                fileList.innerHTML = '';
+                
+                // Populate the list with files
+                files.forEach(file => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = file;
+                    fileList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching files:', error);
+                // Display error message to the user
+                const fileList = document.getElementById('fileList').querySelector('ul');
+                fileList.innerHTML = '<li>Error fetching files. Please try again later.</li>';
+            }
+        }
+        
+        // Call the function to display files when the page loads
+        async function displayFilesna() {
+                // Fetch list of files from server
+                const response = await fetch('/get_files');
+                const files = await response.json();
+                // Get the file list element
+                const fileList = document.getElementById('fileList').querySelector('ul');
+                // Clear existing list items
+                fileList.innerHTML = '';
+                const listItem = document.createElement('li');
+                listItem.textContent = '*hide';
+                fileList.appendChild(listItem);
+
+        }
+        // Add event listeners to the buttons
+        document.getElementById('add').addEventListener('click', () => {
+            fetch('/add')
+                .then(response => {
+                    if (response) {
+                        var errorMessage = document.getElementById("status");
+                        errorMessage.textContent = "File added successfully";
+                        errorMessage.style.opacity = 1; // Show error message
+                        // Fade out the error message after 3 seconds
+                        console.log('File added successfully');
+                        setTimeout(function() {
+                            var opacity = 1;
+                            var timer = setInterval(function() {
+                                if (opacity <= 0) {
+                                    clearInterval(timer);
+                                    errorMessage.textContent = ""; // Clear the error message text
+                                } else {
+                                    opacity -= 0.1;
+                                    errorMessage.style.opacity = opacity;
+                                }
+                            }, 100);
+                        }, 3000);
+                    } else {
+                        console.error('Failed to add file:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error adding file:', error);
+                });
+        });
+
+        document.getElementById('push').addEventListener('click', () => {
+            fetch('/push')
+                .then(response => {
+                    if (response) {
+                        var errorMessage = document.getElementById("status");
+                        errorMessage.textContent = "File pushed successfully";
+                        errorMessage.style.opacity = 1; // Show error message
+                        // Fade out the error message after 3 seconds
+                        console.log('File pushed successfully');
+                        setTimeout(function() {
+                            var opacity = 1;
+                            var timer = setInterval(function() {
+                                if (opacity <= 0) {
+                                    clearInterval(timer);
+                                    errorMessage.textContent = ""; // Clear the error message text
+                                } else {
+                                    opacity -= 0.1;
+                                    errorMessage.style.opacity = opacity;
+                                }
+                            }, 100);
+                        }, 3000);
+                    } else {
+                        console.error('Failed to push file:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error pushing:', error);
+                });
+        });
+
+        document.getElementById('pull').addEventListener('click', () => {
+            fetch('/pull')
+                .then(response => {
+                    if (response) {
+                        var errorMessage = document.getElementById("status");
+                        errorMessage.textContent = "File pulled successfully";
+                        errorMessage.style.opacity = 1; // Show error message
+                        // Fade out the error message after 3 seconds
+                        console.log('File pulled successfully');
+                        setTimeout(function() {
+                            var opacity = 1;
+                            var timer = setInterval(function() {
+                                if (opacity <= 0) {
+                                    clearInterval(timer);
+                                    errorMessage.textContent = ""; // Clear the error message text
+                                } else {
+                                    opacity -= 0.1;
+                                    errorMessage.style.opacity = opacity;
+                                }
+                            }, 100);
+                        }, 3000);
+                    } else {
+                        console.error('Failed to pull file:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error pulling:', error);
+                });
+        });
+
+        document.getElementById('hub').addEventListener('click', () => {
+            if (flag) {
+                displayFiles();
+                flag = false;
+            }else{
+                displayFilesna();
+                flag = true;
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Form</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='icon.jpg') }}">
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="login-form">
+    <label for="name">Email:</label>
+    <input type="text" id="name" name="name" placeholder="email" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" placeholder="password" required>
+    <br>
+    <button type="submit">Login</button>
+  </form>
+  <p id="errorMessage" style="opacity: 0; color: red;"></p>
+  <p id="accountLink" style="text-align: center;">Don't have an account? <a href="{{ url_for('chgsignup') }}">Sign up here</a></p>
+  <script>
+    document.getElementById("login-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        var name = document.getElementById("name").value;
+        var password = document.getElementById("password").value;
+    
+        if (checkEmailFormat(name)){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/login", true); // Send POST request to /login route in Flask backend
+        xhr.setRequestHeader("Content-Type", "application/json");
+    
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response) {
+                        window.location.href = "{{ url_for('home') }}"; // Redirect to home page if login is successful
+                    } else {
+                        var errorMessage = document.getElementById("errorMessage");
+                        errorMessage.textContent = "Name or password is wrong"; // Display error message if login is unsuccessful
+                        errorMessage.style.opacity = 1; // Show error message
+                        // Fade out the error message after 3 seconds
+                        setTimeout(function() {
+                            var opacity = 1;
+                            var timer = setInterval(function() {
+                                if (opacity <= 0) {
+                                    clearInterval(timer);
+                                    errorMessage.textContent = ""; // Clear the error message text
+                                } else {
+                                    opacity -= 0.1;
+                                    errorMessage.style.opacity = opacity;
+                                }
+                            }, 100);
+                        }, 3000);
+                    }
+                } else {
+                    document.getElementById("errorMessage").textContent = "Error: " + xhr.statusText; // Display other errors
+                }
+            }
+        };
+    
+        xhr.send(JSON.stringify({ name: name, password: password }));
+
+        }else{
+            var errorMessage = document.getElementById("errorMessage");
+                        errorMessage.textContent = "wrong email"; // Display error message if login is unsuccessful
+                        errorMessage.style.opacity = 1; // Show error message
+                        // Fade out the error message after 3 seconds
+                        setTimeout(function() {
+                            var opacity = 1;
+                            var timer = setInterval(function() {
+                                if (opacity <= 0) {
+                                    clearInterval(timer);
+                                    errorMessage.textContent = ""; // Clear the error message text
+                                } else {
+                                    opacity -= 0.1;
+                                    errorMessage.style.opacity = opacity;
+                                }
+                            }, 100);
+                        }, 3000);
+                    }
+    });
+
+    function checkEmailFormat(email) {
+    // Using regular expression to check if the input ends with '@gmail.com'
+    var emailRegex = /@gmail\.com$/i; // Case insensitive check for '@gmail.com'
+    return emailRegex.test(email); // Returns true if the input matches the pattern, false otherwise
+    }
+    </script>
+    
+</body>
+</html>

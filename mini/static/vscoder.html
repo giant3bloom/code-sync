@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Code Editor</title>
+<!-- Include Monaco Editor's stylesheet -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.23.0/min/vs/editor/editor.main.css">
+<!-- CSS styles for the editor and output container -->
+<style>
+    #editorOutputContainer {
+        width: 100%;
+    }
+
+    #editorContainer,
+    #outputContainer {
+    width: 47%;
+    height: 450px;
+    background-color: #1e1e1e; /* Dark background color */
+    color: #d4d4d4; /* Light text color */
+    padding: 10px;
+    }
+
+    #editorContainer{
+        float: left;
+    }
+
+    #outputContainer {
+        float: right;
+    }
+
+    .runButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #007ACC; /* Visual Studio Code blue */
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 14px; /* Match font size with Visual Studio Code */
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s;
+}
+
+.runButton:hover {
+    background-color: #005F91; /* Darker blue on hover */
+}
+
+.runButton:focus {
+    outline: none; /* Remove focus outline */
+}
+
+
+
+    #usernameInput {
+    color: #666; /* Darker color for input text */
+    }
+</style>
+</head>
+<body>
+    <label id="name" style="color: #666;">name</label><br>
+    <input type="text" name="name" id="usernameInput" value="John" placeholder="name">    
+    <div id="editorOutputContainer">
+        <div id="editorContainer"></div>
+        <div id="outputContainer"></div>
+        <button class="runButton" onclick="runCode()">Run</button>
+    </div>
+
+    <!-- Include Monaco Editor's JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.23.0/min/vs/loader.js"></script>
+    <script>
+        var editor;
+        require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.23.0/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            // Initialize the editor
+            editor = monaco.editor.create(document.getElementById('editorContainer'), {
+                value: [
+                    'print("Hello, world!")', // Initial Python code
+                ].join('\n'),
+                language: 'python', // Set language mode to Python
+                theme: 'vs-dark' // Set dark theme
+            });
+        });
+        
+        function runCode() {
+    // Get the current code from the editor
+    var code = editor.getValue();
+    var name = document.getElementById('usernameInput').value; // Correct way to get the value of the input field
+
+    // Send the code to the backend for execution
+    fetch('/execute_code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code: code , name: name }) // Pass the correct value of name
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Display the output in the output container
+        var outputContainer = document.getElementById('outputContainer');
+        outputContainer.textContent = data.output;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+    }
+    </script>
+</body>
+</html>

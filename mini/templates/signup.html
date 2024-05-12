@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up Form</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='icon.jpg') }}">
+</head>
+<body>
+  <h1>Sign Up</h1>
+  <form id="signup-form">
+    <label for="name">Email:</label>
+    <input type="text" id="name" name="name" placeholder="name" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" placeholder="password" required>
+    <br>
+    <label for="confirmPassword">Confirm Password:</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="confirmPassword" required>
+    <br>
+    <button type="submit">Sign Up</button>
+  </form>
+  <p id="errorMessage" style="opacity: 0; color: red;"></p> <!-- Initially hide the error message -->
+  <!-- Corrected link to login.html -->
+  <p id="accountLink" style="text-align: center;">Already have an account? <a href="{{ url_for('chglogin')}}">Login here</a></p>
+  <script>
+    document.getElementById("signup-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent default form submission
+        
+        var name = document.getElementById("name").value;
+        var password = document.getElementById("password").value;
+        var confirmPassword = document.getElementById("confirmPassword").value;
+        if (checkEmailFormat(name)){
+        // Validate password match
+        if (password !== confirmPassword) {
+            var errorMessage = document.getElementById("errorMessage");
+            errorMessage.textContent = "Passwords do not match";
+            errorMessage.style.opacity = 1; // Show error message
+            // Fade out the error message after 3 seconds
+            setTimeout(function() {
+                var opacity = 1;
+                var timer = setInterval(function() {
+                    if (opacity <= 0) {
+                        clearInterval(timer);
+                        errorMessage.textContent = ""; // Clear the error message text
+                    } else {
+                        opacity -= 0.5;
+                        errorMessage.style.opacity = opacity;
+                    }
+                }, 100);
+            }, 3000);
+            return; // Exit function if passwords do not match
+        }
+    
+        // Send data to Flask backend
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/signup", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+    
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response) {
+                        window.location.href = "{{ url_for('home') }}"; // Redirect to home page if sign up is successful
+                    } else {
+                        var errorMessage = document.getElementById("errorMessage");
+                        errorMessage.textContent = "Failed to sign up: " + response.message;
+                        errorMessage.style.opacity = 1; // Show error message
+                    }
+                } else {
+                    var errorMessage = document.getElementById("errorMessage");
+                    errorMessage.textContent = "Failed to sign up: " + xhr.statusText;
+                    errorMessage.style.opacity = 1; // Show error message
+                }
+            }
+        };
+    
+        xhr.send(JSON.stringify({ name: name, password: password }));
+    }else{
+        var errorMessage = document.getElementById("errorMessage");
+            errorMessage.textContent = "wrong email";
+            errorMessage.style.opacity = 1; // Show error message
+            // Fade out the error message after 3 seconds
+            setTimeout(function() {
+                var opacity = 1;
+                var timer = setInterval(function() {
+                    if (opacity <= 0) {
+                        clearInterval(timer);
+                        errorMessage.textContent = ""; // Clear the error message text
+                    } else {
+                        opacity -= 0.5;
+                        errorMessage.style.opacity = opacity;
+                    }
+                }, 100);
+            }, 3000);
+            return; // Exit function if passwords do not match
+    }
+
+    });
+
+
+    function checkEmailFormat(email) {
+    // Using regular expression to check if the input ends with '@gmail.com'
+    var emailRegex = /@gmail\.com$/i; // Case insensitive check for '@gmail.com'
+    return emailRegex.test(email); // Returns true if the input matches the pattern, false otherwise
+    }
+    </script>
+    
+</body>
+</html>
